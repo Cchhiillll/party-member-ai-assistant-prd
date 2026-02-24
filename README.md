@@ -195,10 +195,10 @@ POST   /api/activity/generate-intro # 生成简介
 - [x] 谈话记录功能
 - [x] 消息提醒功能
 - [x] 活动管理功能
-- [ ] AI接口集成 (OpenAI/Claude/GLM)
-- [ ] 数据库集成
-- [ ] 用户认证
-- [ ] 测试用例
+- [x] AI接口集成 (OpenAI/Claude/GLM)
+- [x] 数据库集成 (SQLite)
+- [x] 用户认证 (JWT)
+- [x] 测试用例 (Jest)
 
 ---
 
