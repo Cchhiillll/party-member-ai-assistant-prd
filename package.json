@@ -1,0 +1,25 @@
+{
+  "name": "party-member-ai-assistant",
+  "version": "1.0.0",
+  "description": "党员发展AI助手 - 面向党务工作者与基层党组织的智能助手",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev --workspace=party-member-ai-frontend",
+    "dev:backend": "npm run dev --workspace=party-member-ai-backend",
+    "build": "npm run build --workspace=party-member-ai-frontend && npm run build --workspace=party-member-ai-backend",
+    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Charmander AI",
+  "license": "MIT"
+}
