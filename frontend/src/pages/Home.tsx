@@ -1,17 +1,58 @@
-import React from 'react'
-import { Card, Row, Col, Statistic, Progress } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { Card, Row, Col, Statistic, Progress, Alert } from 'antd'
 import {
   UserOutlined,
   FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  HeartOutlined,
 } from '@ant-design/icons'
 
+interface HealthStatus {
+  status: string
+  timestamp: string
+  environment: string
+}
+
 const Home: React.FC = () => {
+  const [health, setHealth] = useState<HealthStatus | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const API_BASE = 'https://party-member-ai.chillcchhiillll.workers.dev'
+
+  useEffect(() => {
+    fetch(API_BASE + '/health')
+      .then(res => res.json())
+      .then(data => setHealth(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <div>
       <h2 style={{ marginBottom: 24 }}>工作台</h2>
       
+      {/* Health Status */}
+      <Card style={{ marginBottom: 24 }} loading={loading}>
+        <Card.Meta
+          title={<><HeartOutlined /> 系统状态</>}
+          description={
+            health ? (
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: 12, 
+                borderRadius: 6,
+                fontSize: 14 
+              }}>
+                {JSON.stringify(health, null, 2)}
+              </pre>
+            ) : (
+              '加载中...'
+            )
+          }
+        />
+      </Card>
+
       <Row gutter={16}>
         <Col span={6}>
           <Card>
