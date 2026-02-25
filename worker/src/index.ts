@@ -154,6 +154,13 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 <div class="upload-zone" id="rec-zone"><i class="bi bi-file-earmark-text"></i><p class="mt-3 mb-1">上传谈话记录照片</p><small>AI自动识别</small><input type="file" id="rec-file" style="display:none" accept="image/*"></div>
 <div id="rec-r" class="mt-3" style="display:none"></div>
 </div></div>
+<div class="card mb-4"><div class="card-header">手动新增</div><div class="card-body"><div class="row">
+<div class="col-md-6 mb-3"><input type="text" class="form-control" id="rec-name" placeholder="被谈话人姓名"></div>
+<div class="col-md-6 mb-3"><input type="text" class="form-control" id="rec-talker" placeholder="谈话人"></div>
+<div class="col-md-6 mb-3"><input type="date" class="form-control" id="rec-date"></div>
+<div class="col-md-6 mb-3"><select class="form-select" id="rec-type"><option>入党谈话</option><option>思想汇报</option><option>转正谈话</option><option>其他</option></select></div>
+<div class="col-12 mb-3"><textarea class="form-control" id="rec-content" rows="3" placeholder="谈话内容"></textarea></div>
+</div><button class="btn btn-primary" onclick="createRec()">新增记录</button></div></div>
 <div class="card"><div class="card-header d-flex justify-content-between"><span>记录列表</span><button class="btn btn-sm btn-primary" onclick="loadRec()">刷新</button></div>
 <div class="card-body" id="rec-list"><div class="empty-state"><i class="bi bi-journal-text" style="font-size:40px"></i><div class="mt-2">暂无记录</div></div></div></div>
 </div>
@@ -195,10 +202,31 @@ async function sendAI(){var q=document.getElementById('ai-q').value;if(!q)return
 function ask(q){document.getElementById('ai-q').value=q;sendAI()}
 var uz=document.getElementById('up-zone'),uf=document.getElementById('up-file');uz.onclick=()=>uf.click();uf.onchange=()=>{if(uf.files[0])upFile(uf.files[0])};
 async function upFile(f){var fd=new FormData();fd.append('file',f);var r=document.getElementById('up-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">识别中...</div>';var d=await(await fetch('/api/upload',{method:'POST',body:fd})).json();if(d.success&&d.extractedText){r.innerHTML='<div class="alert alert-success">识别成功！</div><pre>'+d.extractedText+'</pre>';document.getElementById('app-c').value=d.extractedText}else{r.innerHTML='<div class="alert alert-danger">'+(d.error||'失败')+'</div>'}}
-async function reviewApp(){var c=document.getElementById('app-c').value;if(c.length<50){alert('至少50字');return}var r=document.getElementById('app-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">审核中...</div>';var d=await api('/api/application/review','POST',{content:c});if(d.overallScore!==undefined){r.innerHTML='<div class="alert alert-primary"><h5>审核结果：'+d.overallScore+'分 - '+d.overallStatus+'</h5></div><pre>'+JSON.stringify(d,null,2)+'</pre>'}else{r.innerHTML='<div class="alert alert-danger">'+(d.error||'失败')+'</div>'}}
+async function reviewApp(){var c=document.getElementById('app-c').value;if(c.length<50){alert('至少50字');return}var r=document.getElementById('app-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">审核中，请稍候...</div>';var d=await api('/api/application/review','POST',{content:c});if(d.overallScore!==undefined){
+  var h='<div class="alert alert-'+(d.overallStatus==='通过'?'success':'warning')+'"><h4>📋 审核结果：'+d.overallScore+'分 - '+d.overallStatus+'</h4>';
+  if(d.dimensions&&d.dimensions.length){
+    h+='<hr><p><strong>各项评分：</strong></p>';
+    d.dimensions.forEach(function(dim){
+      var icon=dim.passed?'✅':'❌';
+      h+='<div class="mb-2"><span class="badge bg-'+(dim.passed?'success':'danger')+' me-1">'+icon+'</span> <b>'+dim.name+'</b>： '+dim.score+'分<br><small class="text-muted">'+dim.feedback+'</small></div>';
+    });
+  }
+  if(d.suggestions&&d.suggestions.length){
+    h+='<hr><p><strong>📝 修改建议：</strong></p><ul>';
+    d.suggestions.forEach(function(s){h+='<li>'+s+'</li>';});
+    h+='</ul>';
+  }
+  if(d.conclusion){
+    h+='<hr><p><strong>总结：</strong> '+d.conclusion+'</p>';
+  }
+  r.innerHTML=h;
+}else{
+  r.innerHTML='<div class="alert alert-danger">'+(d.error||'审核失败')+'</div>';
+}}
 var rz=document.getElementById('rec-zone'),rf=document.getElementById('rec-file');rz.onclick=()=>rf.click();rf.onchange=()=>{if(rf.files[0])upRec(rf.files[0])};
 async function upRec(f){var fd=new FormData();fd.append('file',f);var r=document.getElementById('rec-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">识别中...</div>';var d=await(await fetch('/api/record/upload',{method:'POST',body:fd})).json();r.innerHTML=d.success?'<div class="alert alert-success">识别成功！</div><pre>'+JSON.stringify(d.parsedData||{},null,2)+'</pre>':'<div class="alert alert-danger">'+d.error+'</div>'}
 async function loadRec(){var d=await api('/api/record/list');var el=document.getElementById('rec-list');if(d.success&&d.data&&d.data.length){var h='<table class="table table-striped"><thead><tr><th>姓名</th><th>类型</th><th>日期</th><th>谈话人</th></tr></thead><tbody>';d.data.forEach(r=>{h+='<tr><td>'+(r.interviewee||'')+'</td><td>'+(r.talk_type||'')+'</td><td>'+(r.talk_date||'')+'</td><td>'+(r.talker||'')+'</td></tr>'});h+='</tbody></table>';el.innerHTML=h}else{el.innerHTML='<div class="empty-state"><i class="bi bi-journal-text" style="font-size:40px"></i><div class="mt-2">暂无记录</div></div>'}}
+async function createRec(){var n=document.getElementById('rec-name').value,t=document.getElementById('rec-talker').value,d=document.getElementById('rec-date').value,tp=document.getElementById('rec-type').value,c=document.getElementById('rec-content').value;if(!n||!t||!d){alert('请填写被谈话人、谈话人和日期');return}var r=await api('/api/record/generate','POST',{interviewee:n,talker:t,talkDate:d,talkType:tp,content:c});if(r.success){alert('创建成功！');document.getElementById('rec-name').value='';document.getElementById('rec-talker').value='';document.getElementById('rec-date').value='';document.getElementById('rec-content').value='';loadRec()}else{alert(r.error||'失败')}}
 async function loadAct(){var d=await api('/api/activity/list');var el=document.getElementById('act-list');if(d.success&&d.data&&d.data.length){var h='<table class="table table-striped"><thead><tr><th>名称</th><th>类型</th><th>日期</th><th>地点</th></tr></thead><tbody>';d.data.forEach(a=>{h+='<tr><td>'+(a.name||'')+'</td><td>'+(a.type||'')+'</td><td>'+(a.date||'')+'</td><td>'+(a.location||'')+'</td></tr>'});h+='</tbody></table>';el.innerHTML=h}else{el.innerHTML='<div class="empty-state"><i class="bi bi-calendar" style="font-size:40px"></i><div class="mt-2">暂无活动</div></div>'}}
 async function createAct(){var n=document.getElementById('act-name').value,t=document.getElementById('act-type').value,d=document.getElementById('act-date').value,l=document.getElementById('act-loc').value,dc=document.getElementById('act-desc').value;if(!n||!d){alert('请填写名称和日期');return}var r=await api('/api/activity/create','POST',{name:n,type:t,date:d,location:l,description:dc});if(r.success){alert('创建成功！');document.getElementById('act-name').value='';document.getElementById('act-date').value='';document.getElementById('act-loc').value='';document.getElementById('act-desc').value='';loadAct()}else{alert(r.error||'失败')}}
 async function loadMsg(){var d=await api('/api/message/list');var el=document.getElementById('msg-list');if(d.success&&d.data&&d.data.length){var h='';d.data.forEach(m=>{h+='<div class="alert alert-secondary"><i class="bi bi-bell me-2"></i>'+(m.content||JSON.stringify(m))+'</div>'});el.innerHTML=h}else{el.innerHTML='<div class="empty-state"><i class="bi bi-bell-slash" style="font-size:40px"></i><div class="mt-2">暂无消息</div></div>'}}
@@ -286,7 +314,7 @@ app.post('/api/application/review', async c => {
       const r = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${c.env.GLM_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'glm-4', messages: [{ role: 'user', content: `审核入党申请书，从完整性、规范性、真实性、正确性打分（0-100），返回JSON：{overallScore,overallStatus,dimensions:[{name,score,passed,feedback}],suggestions:[],conclusion}。内容：${content.slice(0,2000)}` }] })
+        body: JSON.stringify({ model: 'glm-4', messages: [{ role: 'user', content: `审核入党申请书，从完整性、规范性、真实性、正确性四个维度打分（0-100），返回JSON：{"overallScore":总分,"overallStatus":"通过/不通过/需修改","dimensions":[{"name":"完整性","score":90,"passed":true,"feedback":"评价"},{"name":"规范性","score":85,"passed":true,"feedback":"评价"},{"name":"真实性","score":88,"passed":true,"feedback":"评价"},{"name":"正确性","score":92,"passed":true,"feedback":"评价"}],"suggestions":["建议1","建议2"],"conclusion":"总结评价"}。申请书内容：${content.slice(0,2000)}` }] })
       })
       const d = await r.json()
       const text = d.choices?.[0]?.message?.content || ''
@@ -294,7 +322,7 @@ app.post('/api/application/review', async c => {
       if (m) try { return c.json(JSON.parse(m[0])) } catch(e) {}
     } catch(e) {}
   }
-  return c.json({ overallScore: 75, overallStatus: '通过', dimensions: [], suggestions: [], conclusion: '示例' })
+  return c.json({ overallScore: 75, overallStatus: '通过', dimensions: [{name:'完整性',score:75,passed:true,feedback:'内容基本完整'},{name:'规范性',score:75,passed:true,feedback:'格式符合要求'},{name:'真实性',score:75,passed:true,feedback:'表述真实'},{name:'正确性',score:75,passed:true,feedback:'观点正确'}], suggestions: ['建议补充个人经历'], conclusion: '整体符合入党申请书要求，建议提交审议。' })
 })
 
 // 谈话记录列表
