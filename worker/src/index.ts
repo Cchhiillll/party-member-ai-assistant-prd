@@ -22,12 +22,14 @@ app.get('/', c => c.html(`<!DOCTYPE html>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
 :root{--p:#0066cc;--s:#0080ff;--d:#2c3e50}
-body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh}
-.sidebar{background:linear-gradient(180deg,var(--d),#1a252f);min-height:100vh;box-shadow:4px 0 15px rgba(0,0,0,.3)}
-.sidebar h3{background:linear-gradient(45deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
-.sidebar .nav-link{border-radius:10px;margin:5px 10px;transition:all .3s;color:rgba(255,255,255,.8)!important}
+*{box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;margin:0}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;min-width:220px;background:linear-gradient(180deg,var(--d),#1a252f);box-shadow:4px 0 15px rgba(0,0,0,.3);flex-shrink:0}
+.sidebar h3{background:linear-gradient(45deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;margin:0;padding:20px;text-align:center}
+.sidebar .nav-link{border-radius:10px;margin:5px 10px;transition:all .3s;color:rgba(255,255,255,.8)!important;display:block;padding:10px 15px;text-decoration:none}
 .sidebar .nav-link:hover,.sidebar .nav-link.active{background:linear-gradient(45deg,var(--p),var(--s));color:#fff!important;transform:translateX(5px)}
-.main-content{background:rgba(255,255,255,.95);border-radius:20px;margin:20px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.main-content{flex:1;background:rgba(255,255,255,.95);border-radius:20px;margin:20px;margin-left:0;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,.2);overflow:auto}
 .page-title{border-left:5px solid var(--p);padding-left:15px;margin-bottom:30px;color:var(--d)}
 .stat-card{border:none;border-radius:15px;overflow:hidden;transition:transform .3s}.stat-card:hover{transform:translateY(-5px)}
 .stat-card .card-body{background:linear-gradient(135deg,var(--p),var(--s));color:#fff}
@@ -36,8 +38,8 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 .process-step{padding:20px;border-radius:15px;background:#fff;box-shadow:0 5px 15px rgba(0,0,0,.1);text-align:center;transition:all .3s}
 .process-step:hover{transform:translateY(-5px)}.process-step.completed{background:linear-gradient(135deg,var(--p),var(--s));color:#fff}
 .process-arrow{font-size:30px;color:var(--s);display:flex;align-items:center;justify-content:center}
-.btn-primary{background:linear-gradient(45deg,var(--p),var(--s));border:none;padding:12px 30px;border-radius:25px;font-weight:600}
-.btn-primary:hover{transform:scale(1.05)}
+.btn-primary{background:linear-gradient(45deg,var(--p),var(--s));border:none;padding:12px 30px;border-radius:25px;font-weight:600;color:#fff}
+.btn-primary:hover{transform:scale(1.05);color:#fff}
 .card{border:none;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
 .card-header{background:linear-gradient(45deg,var(--d),#34495e);color:#fff;border-radius:15px 15px 0 0!important;padding:15px 20px}
 .feature-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:35px;margin:0 auto 15px;background:linear-gradient(135deg,var(--p),var(--s));color:#fff}
@@ -48,45 +50,28 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 </style>
 </head>
 <body>
-<div class="container-fluid"><div class="row">
-<div class="col-md-2 sidebar p-0">
-<h3 class="p-3 text-center"><i class="bi bi-flag-fill"></i> 党员发展AI</h3>
+<div class="layout">
+<div class="sidebar">
+<h3><i class="bi bi-flag-fill"></i> 党员发展AI</h3>
 <nav class="nav flex-column pb-4">
 <a class="nav-link active" data-page="home"><i class="bi bi-house-door me-2"></i>工作台</a>
-<a class="nav-link" data-page="apply"><i class="bi bi-send me-2"></i>入党申请</a>
-<a class="nav-link" data-page="process"><i class="bi bi-diagram-3 me-2"></i>发展流程</a>
 <a class="nav-link" data-page="ai"><i class="bi bi-robot me-2"></i>AI助手</a>
 <a class="nav-link" data-page="review"><i class="bi bi-file-earmark-check me-2"></i>申请书审核</a>
 <a class="nav-link" data-page="record"><i class="bi bi-chat-quote me-2"></i>谈话记录</a>
-<a class="nav-link" data-page="activity"><i class="bi bi-calendar-event me-2"></i>活动管理</a>
-<a class="nav-link" data-page="message"><i class="bi bi-bell me-2"></i>消息中心</a>
 <a class="nav-link" data-page="system"><i class="bi bi-gear me-2"></i>系统状态</a>
 </nav>
 </div>
-<div class="col-md-10"><div class="main-content">
+<div class="main-content">
 
 <div class="page active" id="page-home">
 <h2 class="page-title"><i class="bi bi-house-door me-2"></i>工作台</h2>
 <div class="hero-section"><h1><i class="bi bi-flag-fill me-2"></i>党员发展AI助手</h1><p class="mb-0">智能辅助党员发展全流程</p></div>
-<div class="row mb-4">
-<div class="col-md-3"><div class="stat-card"><div class="card-body text-center"><i class="bi bi-file-earmark-text" style="font-size:40px"></i><div class="mt-2" style="font-size:28px;font-weight:bold">5</div><div>待审核申请书</div></div></div></div>
-<div class="col-md-3"><div class="stat-card"><div class="card-body text-center"><i class="bi bi-chat-dots" style="font-size:40px"></i><div class="mt-2" style="font-size:28px;font-weight:bold">3</div><div>待谈话</div></div></div></div>
-<div class="col-md-3"><div class="stat-card"><div class="card-body text-center"><i class="bi bi-people" style="font-size:40px"></i><div class="mt-2" style="font-size:28px;font-weight:bold">12</div><div>本月发展</div></div></div></div>
-<div class="col-md-3"><div class="stat-card"><div class="card-body text-center"><i class="bi bi-award" style="font-size:40px"></i><div class="mt-2" style="font-size:28px;font-weight:bold">2</div><div>即将转正</div></div></div></div>
-</div>
-<div class="row">
-<div class="col-md-6"><div class="card"><div class="card-header"><i class="bi bi-list-task me-2"></i>待办事项</div><div class="card-body">
-<div class="d-flex align-items-center mb-3"><div class="badge bg-warning me-2">急</div><div>李四的入党申请书待审核</div></div>
-<div class="d-flex align-items-center mb-3"><div class="badge bg-info me-2">待</div><div>王五的谈话记录待录入</div></div>
-<div class="d-flex align-items-center"><div class="badge bg-success me-2">提醒</div><div>周五召开支委会</div></div>
-</div></div></div>
-<div class="col-md-6"><div class="card"><div class="card-header"><i class="bi bi-lightning me-2"></i>快捷入口</div><div class="card-body text-center"><div class="row">
-<div class="col-6 mb-3"><div class="feature-icon" style="cursor:pointer" onclick="nav('apply')"><i class="bi bi-send"></i></div><div>入党申请</div></div>
+<div class="card"><div class="card-header"><i class="bi bi-lightning me-2"></i>快捷入口</div><div class="card-body text-center"><div class="row">
 <div class="col-6 mb-3"><div class="feature-icon" style="cursor:pointer" onclick="nav('ai')"><i class="bi bi-robot"></i></div><div>AI问答</div></div>
-<div class="col-6"><div class="feature-icon" style="cursor:pointer" onclick="nav('review')"><i class="bi bi-file-earmark-check"></i></div><div>审核</div></div>
-<div class="col-6"><div class="feature-icon" style="cursor:pointer" onclick="nav('process')"><i class="bi bi-diagram-3"></i></div><div>流程</div></div>
-</div></div></div></div>
-</div>
+<div class="col-6 mb-3"><div class="feature-icon" style="cursor:pointer" onclick="nav('review')"><i class="bi bi-file-earmark-check"></i></div><div>审核</div></div>
+<div class="col-6"><div class="feature-icon" style="cursor:pointer" onclick="nav('record')"><i class="bi bi-chat-quote"></i></div><div>谈话记录</div></div>
+<div class="col-6"><div class="feature-icon" style="cursor:pointer" onclick="nav('system')"><i class="bi bi-gear"></i></div><div>系统</div></div>
+</div></div></div>
 </div>
 
 <div class="page" id="page-apply">
@@ -137,13 +122,16 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 
 <div class="page" id="page-review">
 <h2 class="page-title"><i class="bi bi-file-earmark-check me-2"></i>申请书审核</h2>
-<div class="card mb-4"><div class="card-header"><i class="bi bi-upload me-2"></i>上传申请书（图片识别）</div><div class="card-body">
+<div class="card mb-4"><div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-upload me-2"></i>上传申请书（图片识别）</span><button class="btn btn-sm btn-outline-light" onclick="clearUpload()"><i class="bi bi-x-lg me-1"></i>清空</button></div><div class="card-body">
 <div class="upload-zone" id="up-zone"><i class="bi bi-file-earmark-image"></i><p class="mt-3 mb-1">点击上传图片</p><small>AI自动识别文字</small><input type="file" id="up-file" style="display:none" accept="image/*"></div>
 <div id="up-r" class="mt-3" style="display:none"></div>
 </div></div>
-<div class="card"><div class="card-header">手动输入审核</div><div class="card-body">
-<textarea class="form-control mb-3" id="app-c" rows="5" placeholder="粘贴申请书内容（至少50字）..."></textarea>
-<button class="btn btn-primary" onclick="reviewApp()">开始审核</button>
+<div class="card"><div class="card-header">手动输入/编辑审核内容</div><div class="card-body">
+<textarea class="form-control mb-3" id="app-c" rows="8" style="resize:both;min-height:120px;max-height:400px" placeholder="粘贴申请书内容（至少50字）...&#10;💡 提示：可以拖动右下角调整输入框大小"></textarea>
+<div class="d-flex gap-2 mb-3">
+<button class="btn btn-primary" onclick="reviewApp()"><i class="bi bi-check-circle me-1"></i>开始审核</button>
+<button class="btn btn-outline-secondary" onclick="clearContent()"><i class="bi bi-trash me-1"></i>清空内容</button>
+</div>
 <div id="app-r" class="mt-3" style="display:none"></div>
 </div></div>
 </div>
@@ -192,7 +180,9 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 </div></div>
 </div>
 
-</div></div></div>
+</div>
+</div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function nav(p){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));document.querySelector('[data-page="'+p+'"]').classList.add('active');document.querySelectorAll('.page').forEach(g=>g.classList.remove('active'));document.getElementById('page-'+p).classList.add('active')}
@@ -201,7 +191,9 @@ async function api(u,m,d){try{var r=await fetch(u,{method:m||'GET',headers:{'Con
 async function sendAI(){var q=document.getElementById('ai-q').value;if(!q)return;var r=document.getElementById('ai-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">AI思考中...</div>';var d=await api('/api/ai/chat','POST',{message:q});r.innerHTML='<div class="alert alert-primary">'+(d.data?d.data.message:JSON.stringify(d))+'</div>'}
 function ask(q){document.getElementById('ai-q').value=q;sendAI()}
 var uz=document.getElementById('up-zone'),uf=document.getElementById('up-file');uz.onclick=()=>uf.click();uf.onchange=()=>{if(uf.files[0])upFile(uf.files[0])};
-async function upFile(f){var fd=new FormData();fd.append('file',f);var r=document.getElementById('up-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">识别中...</div>';var d=await(await fetch('/api/upload',{method:'POST',body:fd})).json();if(d.success&&d.extractedText){r.innerHTML='<div class="alert alert-success">识别成功！</div><pre>'+d.extractedText+'</pre>';document.getElementById('app-c').value=d.extractedText}else{r.innerHTML='<div class="alert alert-danger">'+(d.error||'失败')+'</div>'}}
+function clearUpload(){document.getElementById('up-r').style.display='none';document.getElementById('up-r').innerHTML='';uf.value='';document.getElementById('up-zone').style.display='block'}
+function clearContent(){document.getElementById('app-c').value='';document.getElementById('app-r').style.display='none'}
+async function upFile(f){var fd=new FormData();fd.append('file',f);var r=document.getElementById('up-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">识别中...</div>';var d=await(await fetch('/api/upload',{method:'POST',body:fd})).json();if(d.success&&d.extractedText){r.innerHTML='<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>识别成功！已自动填充到下方输入框</div>';document.getElementById('app-c').value=d.extractedText}else{r.innerHTML='<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i>'+(d.error||'识别失败')+'</div>'}}
 async function reviewApp(){var c=document.getElementById('app-c').value;if(c.length<50){alert('至少50字');return}var r=document.getElementById('app-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">审核中，请稍候...</div>';var d=await api('/api/application/review','POST',{content:c});if(d.overallScore!==undefined){
   var h='<div class="alert alert-'+(d.overallStatus==='通过'?'success':'warning')+'"><h4>📋 审核结果：'+d.overallScore+'分 - '+d.overallStatus+'</h4>';
   if(d.dimensions&&d.dimensions.length){
@@ -241,26 +233,58 @@ loadRec();loadAct();
 app.get('/health', c => c.json({ status: 'ok', timestamp: new Date().toISOString(), environment: c.env.ENVIRONMENT || 'production' }))
 
 // 图片上传识别
+// 图片上传识别
 app.post('/api/upload', async c => {
   const body = await c.req.parseBody()
   const file = body.file as File
   if (!file) return c.json({ success: false, error: '请选择文件' })
   if (!file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) return c.json({ success: false, error: '请上传图片' })
+  
+  // 获取文件类型
+  const mimeType = file.type || 'image/jpeg'
+  
+  // 转换为 base64（使用更可靠的方法）
   const arr = await file.arrayBuffer()
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(arr)))
-  let text = '识别失败'
-  if (c.env.GLM_API_KEY) {
-    try {
-      const r = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${c.env.GLM_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'glm-4v-flash', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }, { type: 'text', text: '请识别图片中的文字内容' }] }] })
-      })
-      const d = await r.json()
-      text = d.choices?.[0]?.message?.content || '识别失败'
-    } catch(e) { text = '识别失败' }
+  const uint8Array = new Uint8Array(arr)
+  let binary = ''
+  for (let i = 0; i < uint8Array.length; i++) {
+    binary += String.fromCharCode(uint8Array[i])
   }
-  return c.json({ success: true, extractedText: text })
+  const base64 = btoa(binary)
+  
+  if (!c.env.GLM_API_KEY) {
+    return c.json({ success: false, error: 'GLM API Key 未配置' })
+  }
+  
+  try {
+    const r = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${c.env.GLM_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        model: 'glm-4v-flash', 
+        messages: [{ 
+          role: 'user', 
+          content: [
+            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}` } }, 
+            { type: 'text', text: '请识别图片中的所有文字内容，保持原有格式' }
+          ] 
+        }] 
+      })
+    })
+    const d = await r.json()
+    
+    if (d.error) {
+      return c.json({ success: false, error: `API错误: ${d.error.message || JSON.stringify(d.error)}` })
+    }
+    
+    const text = d.choices?.[0]?.message?.content || ''
+    if (!text) {
+      return c.json({ success: false, error: 'AI未返回识别结果' })
+    }
+    return c.json({ success: true, extractedText: text })
+  } catch(e: any) {
+    return c.json({ success: false, error: `识别失败: ${e.message || '未知错误'}` })
+  }
 })
 
 // 谈话记录识别
@@ -268,23 +292,51 @@ app.post('/api/record/upload', async c => {
   const body = await c.req.parseBody()
   const file = body.file as File
   if (!file) return c.json({ success: false, error: '请选择文件' })
+  
+  const mimeType = file.type || 'image/jpeg'
   const arr = await file.arrayBuffer()
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(arr)))
-  let data = null
-  if (c.env.GLM_API_KEY) {
-    try {
-      const r = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${c.env.GLM_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'glm-4v-flash', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }, { type: 'text', text: '提取JSON格式：interviewee(被谈话人),talker(谈话人),talkDate(日期),talkType(类型),content(内容)' }] }] })
-      })
-      const d = await r.json()
-      const txt = d.choices?.[0]?.message?.content || ''
-      const m = txt.match(/\{[\s\S]*\}/)
-      if (m) try { data = JSON.parse(m[0]) } catch(e) {}
-    } catch(e) { return c.json({ success: false, error: '识别失败' }) }
+  const uint8Array = new Uint8Array(arr)
+  let binary = ''
+  for (let i = 0; i < uint8Array.length; i++) {
+    binary += String.fromCharCode(uint8Array[i])
   }
-  return c.json({ success: true, parsedData: data })
+  const base64 = btoa(binary)
+  
+  if (!c.env.GLM_API_KEY) {
+    return c.json({ success: false, error: 'GLM API Key 未配置' })
+  }
+  
+  try {
+    const r = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${c.env.GLM_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        model: 'glm-4v-flash', 
+        messages: [{ 
+          role: 'user', 
+          content: [
+            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}` } }, 
+            { type: 'text', text: '提取谈话记录信息，返回JSON格式：{"interviewee":"被谈话人姓名","talker":"谈话人姓名","talkDate":"日期","talkType":"谈话类型","content":"谈话内容摘要"}' }
+          ] 
+        }] 
+      })
+    })
+    const d = await r.json()
+    
+    if (d.error) {
+      return c.json({ success: false, error: `API错误: ${d.error.message || JSON.stringify(d.error)}` })
+    }
+    
+    const txt = d.choices?.[0]?.message?.content || ''
+    const m = txt.match(/\{[\s\S]*\}/)
+    let data = null
+    if (m) {
+      try { data = JSON.parse(m[0]) } catch(e) {}
+    }
+    return c.json({ success: true, parsedData: data, rawText: txt })
+  } catch(e: any) {
+    return c.json({ success: false, error: `识别失败: ${e.message || '未知错误'}` })
+  }
 })
 
 // AI聊天
