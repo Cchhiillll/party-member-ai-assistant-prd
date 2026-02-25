@@ -122,18 +122,35 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gr
 
 <div class="page" id="page-review">
 <h2 class="page-title"><i class="bi bi-file-earmark-check me-2"></i>申请书审核</h2>
-<div class="card mb-4"><div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-upload me-2"></i>上传申请书（图片识别）</span><button class="btn btn-sm btn-outline-light" onclick="clearUpload()"><i class="bi bi-x-lg me-1"></i>清空</button></div><div class="card-body">
-<div class="upload-zone" id="up-zone"><i class="bi bi-file-earmark-image"></i><p class="mt-3 mb-1">点击上传图片</p><small>AI自动识别文字</small><input type="file" id="up-file" style="display:none" accept="image/*"></div>
-<div id="up-r" class="mt-3" style="display:none"></div>
-</div></div>
-<div class="card"><div class="card-header">手动输入/编辑审核内容</div><div class="card-body">
-<textarea class="form-control mb-3" id="app-c" rows="8" style="resize:both;min-height:120px;max-height:400px" placeholder="粘贴申请书内容（至少50字）...&#10;💡 提示：可以拖动右下角调整输入框大小"></textarea>
+<div class="row g-4">
+<div class="col-lg-7">
+<div class="card h-100"><div class="card-header"><i class="bi bi-pencil-square me-2"></i>输入/编辑内容</div><div class="card-body d-flex flex-column">
+<textarea class="form-control mb-3 flex-grow-1" id="app-c" style="min-height:200px;resize:vertical" placeholder="在此粘贴或输入申请书内容（至少50字）...&#10;&#10;💡 提示：&#10;• 可直接输入或粘贴文字&#10;• 可拖动右下角调整大小&#10;• 上传图片后会自动识别填充"></textarea>
 <div class="d-flex gap-2 mb-3">
-<button class="btn btn-primary" onclick="reviewApp()"><i class="bi bi-check-circle me-1"></i>开始审核</button>
-<button class="btn btn-outline-secondary" onclick="clearContent()"><i class="bi bi-trash me-1"></i>清空内容</button>
+<button class="btn btn-primary" onclick="reviewApp()"><i class="bi bi-search me-1"></i>开始审核</button>
+<button class="btn btn-outline-secondary" onclick="clearAllContent()"><i class="bi bi-trash me-1"></i>全部清空</button>
 </div>
-<div id="app-r" class="mt-3" style="display:none"></div>
+<div id="app-r" style="display:none"></div>
 </div></div>
+</div>
+<div class="col-lg-5">
+<div class="card h-100"><div class="card-header"><i class="bi bi-camera me-2"></i>图片识别（可选）</div><div class="card-body d-flex flex-column">
+<div id="preview-area" class="mb-3" style="display:none">
+<img id="preview-img" class="img-fluid rounded" style="max-height:200px;object-fit:contain;background:#f8f9fa">
+</div>
+<div class="upload-zone flex-grow-1 d-flex flex-column align-items-center justify-content-center" id="up-zone" style="min-height:150px">
+<i class="bi bi-cloud-arrow-up" style="font-size:40px;color:var(--p)"></i>
+<p class="mt-2 mb-1">点击或拖拽上传图片</p>
+<small class="text-muted">支持 JPG、PNG、GIF</small>
+<input type="file" id="up-file" style="display:none" accept="image/*">
+</div>
+<div id="upload-actions" class="mt-3" style="display:none">
+<button class="btn btn-outline-primary btn-sm" onclick="reUpload()"><i class="bi bi-arrow-repeat me-1"></i>重新上传</button>
+</div>
+<div id="up-status" class="mt-2" style="display:none"></div>
+</div></div>
+</div>
+</div>
 </div>
 
 <div class="page" id="page-record">
@@ -190,10 +207,40 @@ document.querySelectorAll('.sidebar .nav-link').forEach(l=>l.onclick=function(){
 async function api(u,m,d){try{var r=await fetch(u,{method:m||'GET',headers:{'Content-Type':'application/json'},body:d?JSON.stringify(d):undefined});return await r.json()}catch(e){return{error:e.message}}}
 async function sendAI(){var q=document.getElementById('ai-q').value;if(!q)return;var r=document.getElementById('ai-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">AI思考中...</div>';var d=await api('/api/ai/chat','POST',{message:q});r.innerHTML='<div class="alert alert-primary">'+(d.data?d.data.message:JSON.stringify(d))+'</div>'}
 function ask(q){document.getElementById('ai-q').value=q;sendAI()}
-var uz=document.getElementById('up-zone'),uf=document.getElementById('up-file');uz.onclick=()=>uf.click();uf.onchange=()=>{if(uf.files[0])upFile(uf.files[0])};
-function clearUpload(){document.getElementById('up-r').style.display='none';document.getElementById('up-r').innerHTML='';uf.value='';document.getElementById('up-zone').style.display='block'}
-function clearContent(){document.getElementById('app-c').value='';document.getElementById('app-r').style.display='none'}
-async function upFile(f){var fd=new FormData();fd.append('file',f);var r=document.getElementById('up-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">识别中...</div>';var d=await(await fetch('/api/upload',{method:'POST',body:fd})).json();if(d.success&&d.extractedText){r.innerHTML='<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>识别成功！已自动填充到下方输入框</div>';document.getElementById('app-c').value=d.extractedText}else{r.innerHTML='<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i>'+(d.error||'识别失败')+'</div>'}}
+var uz=document.getElementById('up-zone'),uf=document.getElementById('up-file');
+uz.onclick=()=>uf.click();
+uz.ondragover=e=>{e.preventDefault();uz.style.borderColor='var(--p)';uz.style.background='#e6f2ff'};
+uz.ondragleave=e=>{uz.style.borderColor='var(--s)';uz.style.background='#f0f8ff'};
+uz.ondrop=e=>{e.preventDefault();uz.style.borderColor='var(--s)';uz.style.background='#f0f8ff';if(e.dataTransfer.files[0])upFile(e.dataTransfer.files[0])};
+uf.onchange=()=>{if(uf.files[0])upFile(uf.files[0])};
+function reUpload(){document.getElementById('preview-area').style.display='none';document.getElementById('upload-actions').style.display='none';document.getElementById('up-status').style.display='none';uz.style.display='flex';uf.value=''}
+function clearAllContent(){document.getElementById('app-c').value='';document.getElementById('app-r').style.display='none';reUpload()}
+async function upFile(f){
+if(!f.type.startsWith('image/')){showStatus('error','请上传图片文件');return}
+var r=new FileReader();
+r.onload=async function(e){
+document.getElementById('preview-img').src=e.target.result;
+document.getElementById('preview-area').style.display='block';
+uz.style.display='none';
+showStatus('loading','识别中...');
+var fd=new FormData();fd.append('file',f);
+try{
+var d=await(await fetch('/api/upload',{method:'POST',body:fd})).json();
+if(d.success&&d.extractedText){
+showStatus('success','识别成功！已填充到左侧输入框');
+document.getElementById('app-c').value=d.extractedText;
+document.getElementById('upload-actions').style.display='block'
+}else{showStatus('error',d.error||'识别失败');reUpload()}
+}catch(err){showStatus('error','网络错误');reUpload()}
+};
+r.readAsDataURL(f)
+}
+function showStatus(type,msg){
+var s=document.getElementById('up-status');s.style.display='block';
+var icon=type==='success'?'check-circle':type==='error'?'x-circle':'hourglass-split';
+var cls=type==='success'?'success':type==='error'?'danger':'info';
+s.innerHTML='<div class="alert alert-'+cls+' py-2 mb-0"><i class="bi bi-'+icon+' me-2"></i>'+msg+'</div>'
+}
 async function reviewApp(){var c=document.getElementById('app-c').value;if(c.length<50){alert('至少50字');return}var r=document.getElementById('app-r');r.style.display='block';r.innerHTML='<div class="alert alert-info">审核中，请稍候...</div>';var d=await api('/api/application/review','POST',{content:c});if(d.overallScore!==undefined){
   var h='<div class="alert alert-'+(d.overallStatus==='通过'?'success':'warning')+'"><h4>📋 审核结果：'+d.overallScore+'分 - '+d.overallStatus+'</h4>';
   if(d.dimensions&&d.dimensions.length){
